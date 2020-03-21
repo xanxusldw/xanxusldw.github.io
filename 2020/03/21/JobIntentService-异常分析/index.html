@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>JobIntentService 异常分析 | Xblog</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="xanxusldw,前端,设计,Hexo主题,前端开发,用户体验,设计,frontend,design,nodejs,JavaScript" />
+  
+
+  <meta name="description" content="最近在看app的监控上可以看到一些JobIntentService异常的日志， 堆栈如下： 1234567891011121314151617181920212223242526272829java.lang.RuntimeException : An error occurred while executing doInBackground()        at android.os.A">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JobIntentService 异常分析">
+<meta property="og:url" content="http://yoursite.com/2020/03/21/JobIntentService-%E5%BC%82%E5%B8%B8%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Xblog">
+<meta property="og:description" content="最近在看app的监控上可以看到一些JobIntentService异常的日志， 堆栈如下： 1234567891011121314151617181920212223242526272829java.lang.RuntimeException : An error occurred while executing doInBackground()        at android.os.A">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2020/03/21/JobIntentService-%E5%BC%82%E5%B8%B8%E5%88%86%E6%9E%90/JoinIntentServiceWorkFlow.png">
+<meta property="article:published_time" content="2020-03-21T03:59:44.000Z">
+<meta property="article:modified_time" content="2020-03-21T05:32:55.318Z">
+<meta property="article:author" content="xanxusldw">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/03/21/JobIntentService-%E5%BC%82%E5%B8%B8%E5%88%86%E6%9E%90/JoinIntentServiceWorkFlow.png">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbeddx" rel="stylesheet">
+
+
+  
+    
+<link rel="stylesheet" href="/css/personal-style.css">
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-38189205-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+  
+  <script type="text/javascript">
+	(function(){
+	    var bp = document.createElement('script');
+	    var curProtocol = window.location.protocol.split(':')[0];
+	    if (curProtocol === 'https') {
+	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+	    }
+	    else {
+	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+	    }
+	    var s = document.getElementsByTagName("script")[0];
+	    s.parentNode.insertBefore(bp, s);
+	})();
+  </script>
+
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/atom.xml"
+            rel="noopener noreferrer"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-JobIntentService-异常分析" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">JobIntentService 异常分析</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2020.03.21</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>xanxusldw</span>
+        </span>
+      
+
+      
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <p>最近在看app的监控上可以看到一些JobIntentService异常的日志， 堆栈如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">java.lang.RuntimeException : <span class="function">An error occurred <span class="keyword">while</span> executing <span class="title">doInBackground</span><span class="params">()</span></span></span><br><span class="line"><span class="function">        at android.os.AsyncTask$3.<span class="title">done</span><span class="params">(AsyncTask.java:<span class="number">354</span>)</span></span></span><br><span class="line"><span class="function">        at java.util.concurrent.FutureTask.<span class="title">finishCompletion</span><span class="params">(FutureTask.java:<span class="number">383</span>)</span></span></span><br><span class="line"><span class="function">        at java.util.concurrent.FutureTask.<span class="title">setException</span><span class="params">(FutureTask.java:<span class="number">252</span>)</span></span></span><br><span class="line"><span class="function">        at java.util.concurrent.FutureTask.<span class="title">run</span><span class="params">(FutureTask.java:<span class="number">271</span>)</span></span></span><br><span class="line"><span class="function">        at java.util.concurrent.ThreadPoolExecutor.<span class="title">runWorker</span><span class="params">(ThreadPoolExecutor.java:<span class="number">1167</span>)</span></span></span><br><span class="line"><span class="function">        at java.util.concurrent.ThreadPoolExecutor$Worker.<span class="title">run</span><span class="params">(ThreadPoolExecutor.java:<span class="number">641</span>)</span></span></span><br><span class="line"><span class="function">        at java.lang.Thread.<span class="title">run</span><span class="params">(Thread.java:<span class="number">764</span>)</span></span></span><br><span class="line"><span class="function">        Caused by: java.lang.SecurityException : Caller no longer running, last stopped +25ms because: timed out <span class="keyword">while</span> starting</span></span><br><span class="line"><span class="function">        at android.os.Parcel.<span class="title">createException</span><span class="params">(Parcel.java:<span class="number">1950</span>[]</span></span></span><br><span class="line"><span class="function"><span class="params">        at android.os.Parcel.readException(Parcel.java:<span class="number">1918</span>)</span></span></span><br><span class="line"><span class="function">        at android.os.Parcel.<span class="title">readException</span><span class="params">(Parcel.java:<span class="number">1868</span>)</span></span></span><br><span class="line"><span class="function">        at android.app.job.IJobCallback$Stub$Proxy.<span class="title">dequeueWork</span><span class="params">(IJobCallback.java:<span class="number">195</span>)</span></span></span><br><span class="line"><span class="function">        at android.app.job.JobParameters.<span class="title">dequeueWork</span><span class="params">(JobParameters.java:<span class="number">243</span>)</span></span></span><br><span class="line"><span class="function">        at android.support.v4.app.JobIntentService$JobServiceEngineImpl.<span class="title">dequeueWork</span><span class="params">(JobIntentService.java:<span class="number">315</span>)</span></span></span><br><span class="line"><span class="function">        at android.support.v4.app.JobIntentService.<span class="title">dequeueWork</span><span class="params">(JobIntentService.java:<span class="number">640</span>)</span></span></span><br><span class="line"><span class="function">        at android.support.v4.app.JobIntentService$CommandProcessor.<span class="title">doInBackground</span><span class="params">(JobIntentService.java:<span class="number">390</span>)</span></span></span><br><span class="line"><span class="function">        at android.support.v4.app.JobIntentService$CommandProcessor.<span class="title">doInBackground</span><span class="params">(JobIntentService.java:<span class="number">383</span>)</span></span></span><br><span class="line"><span class="function">        at android.os.AsyncTask$2.<span class="title">call</span><span class="params">(AsyncTask.java:<span class="number">333</span>)</span></span></span><br><span class="line"><span class="function">        at java.util.concurrent.FutureTask.<span class="title">run</span><span class="params">(FutureTask.java:<span class="number">266</span>)</span></span></span><br><span class="line"><span class="function">        at java.util.concurrent.ThreadPoolExecutor.<span class="title">runWorker</span><span class="params">(ThreadPoolExecutor.java:<span class="number">1167</span>)</span></span></span><br><span class="line"><span class="function">        at java.util.concurrent.ThreadPoolExecutor$Worker.<span class="title">run</span><span class="params">(ThreadPoolExecutor.java:<span class="number">641</span>)</span></span></span><br><span class="line"><span class="function">        at java.lang.Thread.<span class="title">run</span><span class="params">(Thread.java:<span class="number">764</span>)</span></span></span><br><span class="line"><span class="function">        Caused by: android.os.RemoteException : Remote stack trace:</span></span><br><span class="line"><span class="function">        at com.android.server.job.JobServiceContext.<span class="title">assertCallerLocked</span><span class="params">(JobServiceContext.java:<span class="number">481</span>)</span></span></span><br><span class="line"><span class="function">        at com.android.server.job.JobServiceContext.<span class="title">doDequeueWork</span><span class="params">(JobServiceContext.java:<span class="number">359</span>)</span></span></span><br><span class="line"><span class="function">        at com.android.server.job.JobServiceContext$JobCallback.<span class="title">dequeueWork</span><span class="params">(JobServiceContext.java:<span class="number">160</span>)</span></span></span><br><span class="line"><span class="function">        at android.app.job.IJobCallback$Stub.<span class="title">onTransact</span><span class="params">(IJobCallback.java:<span class="number">83</span>)</span></span></span><br><span class="line"><span class="function">        at android.os.Binder.<span class="title">execTransact</span><span class="params">(Binder.java:<span class="number">731</span>)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>上面我么可以看到在<strong>dequeueWork</strong>的时候出现了<strong>Caller no longer running, last stopped +25ms because: timed out while starting</strong>,caller 的progress 没有在跑了， 那这个是运行在什么进程上的呢？</p>
+<p>我们可以稍微梳理一下JobIntentService的启动流程时序图：</p>
+<img src="/2020/03/21/JobIntentService-%E5%BC%82%E5%B8%B8%E5%88%86%E6%9E%90/JoinIntentServiceWorkFlow.png" class title="JobIntentservice启动流程时序图">
+
+<p>JobParameters.dequeueWork  这里调用的是 JobServiceContext.JobCallback.dequeueWork， 这个CallBack是在JobServiceContext.executeRunnableJob中初始化的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">executeRunnableJob</span><span class="params">(JobStatus job)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (mLock) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!mAvailable) &#123;</span><br><span class="line">            Slog.e(TAG, <span class="string">"Starting new runnable but context is unavailable &gt; Error."</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        mPreferredUid = NO_PREFERRED_UID;</span><br><span class="line"></span><br><span class="line">        mRunningJob = job;</span><br><span class="line">        mRunningCallback = <span class="keyword">new</span> JobCallback();</span><br><span class="line">        <span class="comment">// 此处省略代码。。。。。。</span></span><br><span class="line">        mParams = <span class="keyword">new</span> JobParameters(mRunningCallback, job.getJobId(), ji.getExtras(),</span><br><span class="line">                ji.getTransientExtras(), ji.getClipData(), ji.getClipGrantFlags(),</span><br><span class="line">                isDeadlineExpired, triggeredUris, triggeredAuthorities, job.network);</span><br><span class="line">        mExecutionStartTimeElapsed = sElapsedRealtimeClock.millis();</span><br></pre></td></tr></table></figure>
+<p><br>这个JoboServiceContext 是怎么来的？<br>这个可以在JobSchedulerService中查到：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Track Services that have currently active or pending jobs. The index is provided by</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> JobStatus#getServiceToken()&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">final</span> List&lt;JobServiceContext&gt; mActiveServices = <span class="keyword">new</span> ArrayList&lt;&gt;(); </span><br><span class="line"></span><br><span class="line"><span class="comment">/** The maximum number of concurrent jobs we run at one time. */</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX_JOB_CONTEXTS_COUNT = <span class="number">16</span>;</span><br></pre></td></tr></table></figure>
+<p>就是JobSchedulerService在Boot Phase后会生成16个JobServiceContext. 这些Context 就是用来执行pending的Job运行工作的。<br>然后PendingJobs 会被assign 到 空闲的JobServiceContext 上。 这个具体的调度策略可以看JobConcurrencyManager.assignJobsToContextsInternalLocked</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; pendingJobs.size(); i++) &#123;</span><br><span class="line">    <span class="keyword">final</span> JobStatus nextPending = pendingJobs.get(i);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Unfortunately we need to repeat this relatively expensive check.</span></span><br><span class="line">    <span class="keyword">int</span> jobRunningContext = findJobContextIdFromMap(nextPending, contextIdToJobMap);</span><br><span class="line">    <span class="keyword">if</span> (jobRunningContext != -<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">boolean</span> isPendingFg = isFgJob(nextPending);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Find an available slot for nextPending. The context should be available OR</span></span><br><span class="line">    <span class="comment">// it should have lowest priority among all running jobs</span></span><br><span class="line">    <span class="comment">// (sharing the same Uid as nextPending)</span></span><br><span class="line">    <span class="keyword">int</span> minPriorityForPreemption = Integer.MAX_VALUE;</span><br><span class="line">    <span class="keyword">int</span> selectedContextId = -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">boolean</span> startingJob = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j=<span class="number">0</span>; j&lt;MAX_JOB_CONTEXTS_COUNT; j++) &#123;</span><br><span class="line">        JobStatus job = contextIdToJobMap[j];</span><br><span class="line">        <span class="keyword">int</span> preferredUid = preferredUidForContext[j];</span><br><span class="line">        <span class="keyword">if</span> (job == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">boolean</span> preferredUidOkay = (preferredUid == nextPending.getUid())</span><br><span class="line">                    || (preferredUid == JobServiceContext.NO_PREFERRED_UID);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (preferredUidOkay &amp;&amp; mJobCountTracker.canJobStart(isPendingFg)) &#123;</span><br><span class="line">                <span class="comment">// This slot is free, and we haven't yet hit the limit on</span></span><br><span class="line">                <span class="comment">// concurrent jobs...  we can just throw the job in to here.</span></span><br><span class="line">                selectedContextId = j;</span><br><span class="line">                startingJob = <span class="keyword">true</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// No job on this context, but nextPending can't run here because</span></span><br><span class="line">            <span class="comment">// the context has a preferred Uid or we have reached the limit on</span></span><br><span class="line">            <span class="comment">// concurrent jobs.</span></span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (job.getUid() != nextPending.getUid()) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> jobPriority = mService.evaluateJobPriorityLocked(job);</span><br><span class="line">        <span class="keyword">if</span> (jobPriority &gt;= nextPending.lastEvaluatedPriority) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// TODO lastEvaluatedPriority should be evaluateJobPriorityLocked. (double check it)</span></span><br><span class="line">        <span class="keyword">if</span> (minPriorityForPreemption &gt; nextPending.lastEvaluatedPriority) &#123;</span><br><span class="line">            minPriorityForPreemption = nextPending.lastEvaluatedPriority;</span><br><span class="line">            selectedContextId = j;</span><br><span class="line">            <span class="comment">// In this case, we're just going to preempt a low priority job, we're not</span></span><br><span class="line">            <span class="comment">// actually starting a job, so don't set startingJob.</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (selectedContextId != -<span class="number">1</span>) &#123;</span><br><span class="line">        contextIdToJobMap[selectedContextId] = nextPending;</span><br><span class="line">        slotChanged[selectedContextId] = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (startingJob) &#123;</span><br><span class="line">        <span class="comment">// Increase the counters when we're going to start a job.</span></span><br><span class="line">        mJobCountTracker.onStartingNewJob(isPendingFg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那还是回到原来的问题JobServiceContext.JobCallback.dequeueWork 这个运行的线程现在就一目了然，就是跑在了JobSchedulerService这个service上面。<br>JobSchedulerService 是一个系统服务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JobSchedulerService</span> <span class="keyword">extends</span> <span class="title">com</span>.<span class="title">android</span>.<span class="title">server</span>.<span class="title">SystemService</span></span></span><br></pre></td></tr></table></figure>
+
+<p>这个JobSchedulerService 就是在SystemService启动的时候一起起的服务。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Starts a miscellaneous grab bag of stuff that has yet to be refactored and organized.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">startOtherServices</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="comment">//…</span></span><br><span class="line">traceBeginAndSlog(<span class="string">"StartJobScheduler"</span>);</span><br><span class="line">mSystemServiceManager.startService(JobSchedulerService<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">traceEnd();</span><br></pre></td></tr></table></figure>
+<p>也就是说这个Service是随着系统一起启动并运行在System server进程上面</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">……</span><br><span class="line"><span class="comment">// Prepare the main looper thread (this thread).</span></span><br><span class="line">android.os.Process.setThreadPriority(</span><br><span class="line">android.os.Process.THREAD_PRIORITY_FOREGROUND);</span><br><span class="line">android.os.Process.setCanSelfBackground(<span class="keyword">false</span>);</span><br><span class="line">Looper.prepareMainLooper();</span><br><span class="line">Looper.getMainLooper().setSlowLogThresholdMs(</span><br><span class="line">SLOW_DISPATCH_THRESHOLD_MS, SLOW_DELIVERY_THRESHOLD_MS);</span><br><span class="line"><span class="comment">// Initialize native services.</span></span><br><span class="line">System.loadLibrary(<span class="string">"android_servers”);</span></span><br><span class="line"><span class="string">……</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">// Loop forever.</span></span><br><span class="line"><span class="string">Looper.loop();</span></span><br></pre></td></tr></table></figure>
+
+<p>为什么在系统上跑了还会出异常log栈呢？  我们看一下log打出来的地点在JobSchedulerContext</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">assertCallerLocked</span><span class="params">(JobCallback cb)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!verifyCallerLocked(cb)) &#123;</span><br><span class="line">        StringBuilder sb = <span class="keyword">new</span> StringBuilder(<span class="number">128</span>);</span><br><span class="line">        sb.append(<span class="string">"Caller no longer running"</span>);</span><br><span class="line">        <span class="keyword">if</span> (cb.mStoppedReason != <span class="keyword">null</span>) &#123;</span><br><span class="line">            sb.append(<span class="string">", last stopped "</span>);</span><br><span class="line">            TimeUtils.formatDuration(sElapsedRealtimeClock.millis() - cb.mStoppedTime, sb);</span><br><span class="line">            sb.append(<span class="string">" because: "</span>);</span><br><span class="line">            sb.append(cb.mStoppedReason);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> SecurityException(sb.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就是verifyCallerLocked 这个方法校验没成功</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * This class is reused across different clients, and passes itself in as a callback. Check</span></span><br><span class="line"><span class="comment"> * whether the client exercising the callback is the client we expect.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> True if the binder calling is coming from the client we expect.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">verifyCallerLocked</span><span class="params">(JobCallback cb)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mRunningCallback != cb) &#123;</span><br><span class="line">        <span class="keyword">if</span> (DEBUG) &#123;</span><br><span class="line">            Slog.d(TAG, <span class="string">"Stale callback received, ignoring."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个校验没有成功是因为mRunningCallBack 和 回调的cb 不一样。  上面我们已经了解过分配策略了， pending job 是跑在空闲的job上的。</p>
+<p>mRunningCallback  会在JobServiceContext 在执行executeRunnableJob的时候进行赋值或者job结束的时候closeAndCleanupJobLocked</p>
+<ol>
+<li>executeRunnableJob<br>这个只有在JobSchedulerService 会给当前空闲的Context分配上pending job才会执行， 什么情况的JobServiceContext算空闲呢？<br>   就是没有Running job 的JobServiceContext， 为空也是在closeAndCleanupJobLocked 上置为空的。我们直接看一下第二个case。</li>
+<li>closeAndCleanupJobLocked<br> 这个执行情况，jobFinish， job cancel， <strong>job操作timeout， job异常了， 任务service连接异常了</strong>。</li>
+</ol>
+<p>也就是说这个crash可能发生的情况就是case 2的加粗的这几种情况，看一下google 有没有这样异常的case。  网上也可以看到类似的case。<br>根据栈的情况Caller no longer running, last stopped +25ms because: timed out while starting</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> VERB_STARTING:</span><br><span class="line">    <span class="comment">// Client unresponsive - wedged or failed to respond in time. We don't really</span></span><br><span class="line">    <span class="comment">// know what happened so let's log it and notify the JobScheduler</span></span><br><span class="line">    <span class="comment">// FINISHED/NO-RETRY.</span></span><br><span class="line">    Slog.w(TAG, <span class="string">"No response from client for onStartJob "</span></span><br><span class="line">            + getRunningJobNameLocked());</span><br><span class="line">    closeAndCleanupJobLocked(<span class="keyword">false</span> <span class="comment">/* needsReschedule */</span>, <span class="string">"timed out while starting"</span>);</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>就是starting timeout了，  这个timeout是这段代码开始的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Start the job on the service. */</span></span><br><span class="line"><span class="meta">@GuardedBy</span>(<span class="string">"mLock"</span>)</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handleServiceBoundLocked</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (DEBUG) &#123;</span><br><span class="line">        Slog.d(TAG, <span class="string">"handleServiceBound for "</span> + getRunningJobNameLocked());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (mVerb != VERB_BINDING) &#123;</span><br><span class="line">        Slog.e(TAG, <span class="string">"Sending onStartJob for a job that isn't pending. "</span></span><br><span class="line">                + VERB_STRINGS[mVerb]);</span><br><span class="line">        closeAndCleanupJobLocked(<span class="keyword">false</span> <span class="comment">/* reschedule */</span>, <span class="string">"started job not pending"</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (mCancelled) &#123;</span><br><span class="line">        <span class="keyword">if</span> (DEBUG) &#123;</span><br><span class="line">            Slog.d(TAG, <span class="string">"Job cancelled while waiting for bind to complete. "</span></span><br><span class="line">                    + mRunningJob);</span><br><span class="line">        &#125;</span><br><span class="line">        closeAndCleanupJobLocked(<span class="keyword">true</span> <span class="comment">/* reschedule */</span>, <span class="string">"cancelled while waiting for bind"</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        mVerb = VERB_STARTING;</span><br><span class="line">        scheduleOpTimeOutLocked();</span><br><span class="line">        service.startJob(mParams);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="comment">// We catch 'Exception' because client-app malice or bugs might induce a wide</span></span><br><span class="line">        <span class="comment">// range of possible exception-throw outcomes from startJob() and its handling</span></span><br><span class="line">        <span class="comment">// of the client's ParcelableBundle extras.</span></span><br><span class="line">        Slog.e(TAG, <span class="string">"Error sending onStart message to '"</span> +</span><br><span class="line">                mRunningJob.getServiceComponent().getShortClassName() + <span class="string">"' "</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后为啥timeout勒</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> JobParameters params = (JobParameters) msg.obj;</span><br><span class="line">    <span class="keyword">switch</span> (msg.what) &#123;</span><br><span class="line">        <span class="keyword">case</span> MSG_EXECUTE_JOB:</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">boolean</span> workOngoing = JobServiceEngine.<span class="keyword">this</span>.onStartJob(params);</span><br><span class="line">                ackStartMessage(params, workOngoing);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                Log.e(TAG, <span class="string">"Error while executing job: "</span> + params.getJobId());</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+
+<p>是的就是这里的ackStartMessage没有走到。直接超时了<br>中间经历了什么？ 好好的按规则走 咋就迷路了约定时间还不到。<br>从一开始的流程中可以知道， 这里面没太多步骤<br>scheduleOpTimeOutLocked() -&gt; JobServiceEngine.startJob -&gt; JobHandler.handle(MSG_EXECUTE_JOB)  -&gt; ensureProcessorRunnngLocked -&gt;  ackStartMessage</p>
+<p>标粗的就是几个具体的操作， 按道理这3个操作不会耗费8秒时间呀， 但出现这样的case 说明真的消耗了8s， 哈哈。</p>
+<p>第一个函数可能的case就是， <strong>IPC  binder交互因为某种原因被阻塞了一段时间</strong>，  也有可能， 人家google 也说了不知道什么原因会timeout。<br>第二个函数按道理就是一个handler的回调上的事， 这里的handler 就是切换了一下线程， 从System Service 切换到JobIntentService 线程上面来了，按道理这里可能就是<strong>线程被挂起了， 系统太忙了</strong>， 然后这个后台的JobIntentService只能等一会才能继续操作<br>第三个函数没啥可能太耗时了， 虽然有lock， 但没有死锁的可能，然后就是起个AsyncTAsk了就结束了</p>
+<p>上面的代码都是基于androix.core 1.2.0 的代码， 暂时升级到androidX后没有看到这样堆栈的bug， 这里面的一些系统bug可能google修了。<br>看看google tracker。</p>
+<p><a href="https://issuetracker.google.com/issues/63622293" target="_blank" rel="noopener">Google tracker:Exception</a>   google 上很多人也发生过类似的情况， 网友都说O以上才发生，为什么是O以上呢？</p>
+<p>其实我们也可以从JobIntentService 找到答案</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> WorkEnqueuer <span class="title">getWorkEnqueuer</span><span class="params">(Context context, ComponentName cn, <span class="keyword">boolean</span> hasJobId,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> jobId)</span> </span>&#123;</span><br><span class="line">    WorkEnqueuer we = sClassWorkEnqueuer.get(cn);</span><br><span class="line">    <span class="keyword">if</span> (we == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= <span class="number">26</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!hasJobId) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Can't be here without a job id"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            we = <span class="keyword">new</span> JobWorkEnqueuer(context, cn, jobId);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            we = <span class="keyword">new</span> CompatWorkEnqueuer(context, cn);</span><br><span class="line">        &#125;</span><br><span class="line">        sClassWorkEnqueuer.put(cn, we);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> we;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>O以下走的是CompatWorkEnqueuer这个方式，O以前是没用JobSchedulerService 来执行job的， 而是通过</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">enqueueWork</span><span class="params">(Intent work)</span> </span>&#123;</span><br><span class="line">    Intent intent = <span class="keyword">new</span> Intent(work);</span><br><span class="line">    intent.setComponent(mComponentName);</span><br><span class="line">    <span class="keyword">if</span> (DEBUG) Log.d(TAG, <span class="string">"Starting service for work: "</span> + work);</span><br><span class="line">    <span class="keyword">if</span> (mContext.startService(intent) != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!mLaunchingService) &#123;</span><br><span class="line">                mLaunchingService = <span class="keyword">true</span>;</span><br><span class="line">                <span class="keyword">if</span> (!mServiceProcessing) &#123;</span><br><span class="line">                    <span class="comment">// If the service is not already holding the wake lock for</span></span><br><span class="line">                    <span class="comment">// itself, acquire it now to keep the system running until</span></span><br><span class="line">                    <span class="comment">// we get this work dispatched.  We use a timeout here to</span></span><br><span class="line">                    <span class="comment">// protect against whatever problem may cause it to not get</span></span><br><span class="line">                    <span class="comment">// the work.</span></span><br><span class="line">                    mLaunchWakeLock.acquire(<span class="number">60</span> * <span class="number">1000</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>没有错 根本没走JobSchedulerService上面的逻辑， 就是直接startService 就开干了~ 所以并不存在上面的case.</p>
+<p>这个问题分析到这里，大致了解了一下这个问题可能的原因和走的逻辑，app性能监控上没有最近没有发现类似的问题,将会继续跟踪观察google tracker上的动态。<br>如果这个必须不让它发生也可以catch 这部分代码的exception.</p>
+
+    
+  </div>
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持xanxusldw</div>
+        <ul>
+        
+          <li class="item">
+            
+              <span>微信扫一扫</span>
+            
+            <img src="/images/qr-wechat.png" alt="">
+          </li>
+        
+          <li class="item">
+            
+              <span>支付宝扫一扫</span>
+            
+            <img src="/images/qr-alipay.png" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2020/03/21/Android-Service-Start-WorkFlow/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="hide pull-right" href="/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">Close</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/atom.xml"
+              rel="noopener noreferrer"
+              target="_blank"
+              >
+              RSS
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+    
+
+<!-- Gitalk评论插件通用代码 -->
+<div id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+<script>
+const gitalk = new Gitalk({
+  clientID: 'f0c2ee8f5e3fbc50e8fe',
+  clientSecret: '9927b1079e9f6b0804c8d6d106353f8ac0aaea87',
+  repo: 'xblog',
+  owner: 'xanxusldw',
+  // 在这里设置一下截取前50个字符串, 这是因为 github 对 label 的长度有了要求, 如果超过
+  // 50个字符串则会报错.
+  // id: location.pathname.split('/').pop().substring(0, 49),
+  id: md5(location.pathname),
+  admin: ['xanxusldw'],
+  // facebook-like distraction free mode
+  distractionFreeMode: false
+})
+gitalk.render('gitalk-container')
+</script>
+<!-- Gitalk代码结束 -->
+
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
